@@ -57,7 +57,7 @@ public class SetPropertyDrawer : PropertyDrawer
 
 		// If we have a list, then there is no need to keep walking the object chain -- return the parent.
 		var childType = child.GetType();
-		if (childType.IsGenericType && (childType.GetGenericTypeDefinition() == typeof(List<>)))
+		if (childType.IsArray || childType.IsGenericType && (childType.GetGenericTypeDefinition() == typeof(List<>)))
 		{
 			return obj;
 		}

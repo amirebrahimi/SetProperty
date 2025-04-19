@@ -3,6 +3,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class SetPropertyExample : MonoBehaviour 
 {
@@ -100,6 +101,21 @@ public class SetPropertyExample : MonoBehaviour
 			realNumbers = value;
 		}
 	}
+
+	[SerializeField, SetProperty("Objects")]
+	private GameObject[] objects;
+	public GameObject[] Objects { 
+		get
+		{
+			return objects;
+		}
+		set
+		{
+			objects = value;
+			Debug.Log($"You have {objects.Length} entries and {objects.Count(o => o == null)} unassigned in your array.");
+		}
+	}
+
 
 	public VanillaClass vanilla;
 }
