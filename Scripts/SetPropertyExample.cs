@@ -68,5 +68,20 @@ public class SetPropertyExample : MonoBehaviour
 		}
 	}
 
+	[SerializeField, SetProperty("Sprite")]
+    private Sprite sprite;
+    public Sprite Sprite
+    {
+        get
+        {
+            return sprite;
+        }
+        set
+        {
+            sprite = value;
+            Debug.Log($"The sprite {sprite.name} is a {sprite.texture.width}x{sprite.texture.height} image.");
+        }
+    }
+
 	public VanillaClass vanilla;
 }

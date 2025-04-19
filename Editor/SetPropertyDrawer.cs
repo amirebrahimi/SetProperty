@@ -11,24 +11,15 @@ public class SetPropertyDrawer : PropertyDrawer
 {
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 	{
+		SetPropertyAttribute setProperty = attribute as SetPropertyAttribute;
+
 		// Rely on the default inspector GUI
 		EditorGUI.BeginChangeCheck ();
 		EditorGUI.PropertyField(position, property, label);
 
 		// Update only when necessary
-		SetPropertyAttribute setProperty = attribute as SetPropertyAttribute;
 		if (EditorGUI.EndChangeCheck())
 		{
-			// When a SerializedProperty is modified the actual field does not have the current value set (i.e.  
-			// FieldInfo.GetValue() will return the prior value that was set) until after this OnGUI call has completed. 
-			// Therefore, we need to mark this property as dirty, so that it can be updated with a subsequent OnGUI event 
-			// (e.g. Repaint)
-			setProperty.IsDirty = true;
-		} 
-		else if (setProperty.IsDirty)
-		{
-			// The propertyPath may reference something that is a child field of a field on this Object, so it is necessary
-			// to find which object is the actual parent before attempting to set the property with the current value.
 			object parent = GetParentObjectOfProperty(property.propertyPath, property.serializedObject.targetObject);
 			Type type = parent.GetType();
 			PropertyInfo pi = type.GetProperty(setProperty.Name);
@@ -38,12 +29,15 @@ public class SetPropertyDrawer : PropertyDrawer
 			}
 			else
 			{
+				// When a SerializedProperty is modified the actual field does not have the current value set (i.e.  
+				// FieldInfo.GetValue() will return the prior value that was set) until after this OnGUI call has 
+				// completed. Therefore, we need to schedule a delayed call to set the property value.
+
 				// Use FieldInfo instead of the SerializedProperty accessors as we'd have to deal with every 
 				// SerializedPropertyType and use the correct accessor
-				pi.SetValue(parent, fieldInfo.GetValue(parent), null);
+				EditorApplication.delayCall += () => pi.SetValue(parent, fieldInfo.GetValue(parent), null);
 			}
-			setProperty.IsDirty = false;
-		}
+		} 
 	}
 	
 	private object GetParentObjectOfProperty(string path, object obj)
