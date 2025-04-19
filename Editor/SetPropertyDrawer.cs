@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 [CustomPropertyDrawer(typeof(SetPropertyAttribute))]
@@ -51,10 +52,18 @@ public class SetPropertyDrawer : PropertyDrawer
 		}
 
 		// We may have to walk public or private fields along the chain to finding our container object, so we have to allow for both
-		FieldInfo fi = obj.GetType().GetField(fields[0], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-		obj = fi.GetValue(obj);
+		FieldInfo fi = obj.GetType().GetField(fields[0], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);		
+		var child = fi.GetValue(obj);
+
+		// If we have a list, then there is no need to keep walking the object chain -- return the parent.
+		var childType = child.GetType();
+		if (childType.IsGenericType && (childType.GetGenericTypeDefinition() == typeof(List<>)))
+		{
+			return obj;
+		}
+
 
 		// Keep searching for our object that contains the property
-		return GetParentObjectOfProperty(string.Join(".", fields, 1, fields.Length - 1), obj);
+		return GetParentObjectOfProperty(string.Join(".", fields, 1, fields.Length - 1), child);
 	}
 }

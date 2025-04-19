@@ -2,6 +2,7 @@
 // Licensed under The MIT License (See LICENSE for full text)
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class SetPropertyExample : MonoBehaviour 
 {
@@ -82,6 +83,23 @@ public class SetPropertyExample : MonoBehaviour
             Debug.Log($"The sprite {sprite.name} is a {sprite.texture.width}x{sprite.texture.height} image.");
         }
     }
+
+	[SerializeField, SetProperty("RealNumbers")]
+	private List<float> realNumbers;
+	public List<float> RealNumbers { 
+		get
+		{
+			return realNumbers;
+		}
+		set
+		{
+			for (int i = 0; i < value.Count; i++)
+			{
+				value[i] = Mathf.Clamp01(value[i]);
+			}
+			realNumbers = value;
+		}
+	}
 
 	public VanillaClass vanilla;
 }
